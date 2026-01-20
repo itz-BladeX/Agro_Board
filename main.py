@@ -40,7 +40,7 @@ with st.container():  # Weather Section
         display: block !important;
     }
     </style>          
-    <h2 style="color: white; text-align: center; font-family: Arial, sans-serif;"> Today's Weather Report </h2>
+    <h2 style="color:#013014ff; text-align: center; font-family: Arial, sans-serif;"> Today's Weather Report </h2>
     """, unsafe_allow_html=True)  # CSS Styling for the st.metric and Title
 
     st.divider()
@@ -68,12 +68,12 @@ with shelve.open("config") as db:
 
 st.markdown("""
 
-<h2 style="color: white; text-align: center; font-family: Arial, sans-serif;"> Statistics and Data </h2>
+<h2 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> Statistics and Data </h2>
 
 
 """, unsafe_allow_html=True)
 # Crop
-with st.expander("See Crop Data"):
+with st.expander("Crop Data"):
     st.markdown("""<h3 style="color: white; text-align: center; font-family: Arial, sans-serif;"> Crops </h3>""", unsafe_allow_html=True)
     heights = [220,260, 220, 260]
     with shelve.open(crop) as db:
@@ -109,7 +109,7 @@ with st.expander("See Crop Data"):
             
     # Livestock
 
-with st.expander("See LiveStock Data"):
+with st.expander("LiveStock Data"):
     st.markdown("""<h3 style=" color: white; text-align: center; font-family: Arial, sans-serif;"> LiveStocks </h3>""", unsafe_allow_html=True)
     heights = [220,260, 220, 260]
     with shelve.open(livestock) as db:
