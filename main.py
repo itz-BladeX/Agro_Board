@@ -100,7 +100,7 @@ with st.expander("Crop Data"):
                                 with right:
                                     st.metric(label=f"Crop Yield[KG]", value=millify(int(db[yr][data_type].yield_amount),precision=1), width="stretch")
                                 st.altair_chart(sup.alter_graph(data_year=yr,data_type=data_type, database=crop, height=height), use_container_width=True)
-                                st.button(f"**{db[yr][data_type].date} -- {db[yr][data_type].estimated}**", width="stretch", type="tertiary")
+                                st.button(f"**{db[yr][data_type].date} -- {db[yr][data_type].estimated}**", width="stretch", type="tertiary", key=f"{yr}{data_type}{db[yr][data_type].type}")
                         if i >= 3:
                             i = 0
                             heights = heights[::-1]
@@ -137,7 +137,7 @@ with st.expander("LiveStock Data"):
                                 with right:
                                     st.metric(label="Livestock Amount", value=db[yr][data_type].amount)
                                 st.altair_chart(sup.alter_graph(data_year=yr,data_type=data_type, database=livestock,height=height), use_container_width=True)
-                                st.button(f"**{db[yr][data_type].date} -- {db[yr][data_type].export_date}**", width="stretch", type="tertiary")
+                                st.button(f"**{db[yr][data_type].date} -- {db[yr][data_type].export_date}**", width="stretch", type="tertiary", key=f"{yr}{data_type}{db[yr][data_type].type} ")
                         if i >= 3:
                             i = 0
                             heights = heights[::-1]
