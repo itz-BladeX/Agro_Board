@@ -14,8 +14,8 @@ col1, col2, col3 = st.columns(3)
 with col2:st.image("logo.png", width=400)
 st.markdown("""
 
-<h1 style="color: white; text-align: center; font-family: Arial, sans-serif;"> Agro-Board </h1>
-<h3 style="color: white; text-align: center; font-family: Arial, sans-serif;"> Agricultural Data and Statistics Management Dashboard </h3>
+<h1 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> Agro-Board </h1>
+<h3 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> Agricultural Data and Statistics Management Dashboard </h3>
 
 
 """, unsafe_allow_html=True)

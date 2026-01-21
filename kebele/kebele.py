@@ -31,7 +31,7 @@ st.markdown("""
         text-align: center !important;
         display: block !important;
     }
-    </style> <h2 style="color: white; text-align: center; font-family: Arial, sans-serif;"> Kebele DashBoard </h2>""", unsafe_allow_html=True)
+    </style> <h2 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> Kebele DashBoard </h2>""", unsafe_allow_html=True)
 col1, col2, col3, col4 = st.columns(4)
 
 
@@ -45,7 +45,7 @@ st.divider()
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown("""</style> <h3 style="color: white; text-align: center; font-family: Arial, sans-serif;"> Crop Ranking By Yield </h3>""", unsafe_allow_html=True)
+    st.markdown("""</style> <h3 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> Crop Ranking By Yield </h3>""", unsafe_allow_html=True)
     crop_ranking_data = sp.get_crop_ranking(kebele)
     years = [year for year in crop_ranking_data]
     sorted_years = sp.sort_years(list(set(years)))
@@ -86,7 +86,7 @@ with col1:
     st.button("See More",key=f"See more Crop ranking", on_click=sp.crop_ranking, args=(sorted_years,crop_ranking_data),width="stretch")
   
 with col2:
-    st.markdown("""</style> <h3 style="color: white; text-align: center; font-family: Arial, sans-serif;"> LiveStock Ranking By Amount </h3>""", unsafe_allow_html=True)
+    st.markdown("""</style> <h3 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> LiveStock Ranking By Amount </h3>""", unsafe_allow_html=True)
     livestock_ranking_data = sp.get_livestock_ranking(kebele)
     years = [year for year in livestock_ranking_data]
     sorted_years = sp.sort_years(list(set(years)))
@@ -126,7 +126,7 @@ with col2:
         
 st.divider()
 
-st.markdown("""</style> <h3 style="color: white; text-align: center; font-family: Arial, sans-serif;"> User Data </h3>""", unsafe_allow_html=True)
+st.markdown("""</style> <h3 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> User Data </h3>""", unsafe_allow_html=True)
 
 col1, col2, col3, col4,  col6, col7 = st.columns([0.7,2,2,2,2,0.5])
 number = 1
