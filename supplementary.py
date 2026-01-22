@@ -283,20 +283,23 @@ def render_nav(current_page, width):
 # ---------------------------------------------------------------------------------------------------
 # ==================================================================================================
 # ---------------------------------------------------------------------------------------------------
-@st.dialog("Add Data")
+@st.dialog("Add Data", width="medium")
 def add_data(database):
+    col1, col2 = st.columns(2)
     if database == "crop_database":
         with st.form(key="crop info"):
-            st.success("Mandatory Fields 📌")
-            # id = str(st.text_input("ID: ", placeholder="3 digit ID recommended", help="Unique ID for each crop"))
-            crop_type = st.selectbox(label="Type", options=[key for key in crop_dict],help="Type of crop")
-            production_year = st.text_input("Production Year", help="Only Production year, partial years like 2020/2021 are Allowed", placeholder="Production Year")
-            date = st.date_input("Planted Date: ", help="Date when the crop was planted")
-            st.info("Non Mandatory Fields ℹ️")
-            estimated = st.date_input(label="Harvest Date: ",value=None,help="date of harvest. If left empty, it will be calculated automatically")
-            yield_amount = st.number_input(label="Yield [kg]", value=None, min_value=0.0, help="Expected or Actual Yield amount in kg, if left empty, it will be set to None")
-            production_cost = st.number_input(label="Production Cost", value=None, min_value=0.0, help="Cost of producing the crop, e.g. seed price,fertilizer, water, etc.")
-            export_cost = st.number_input(label="Sold Price", value=None, min_value=0.0, help="Expected selling price of the crop")
+            with col1:
+                st.success("Mandatory Fields")
+                # id = str(st.text_input("ID: ", placeholder="3 digit ID recommended", help="Unique ID for each crop"))
+                crop_type = st.selectbox(label="Type", options=[key for key in crop_dict],help="Type of crop")
+                production_year = st.text_input("Production Year", help="Only Production year, partial years like 2020/2021 are Allowed", placeholder="Production Year")
+                date = st.date_input("Planted Date: ", help="Date when the crop was planted")
+            with col2:
+                st.info("Non Mandatory Fields")
+                estimated = st.date_input(label="Harvest Date: ",value=None,help="date of harvest. If left empty, it will be calculated automatically")
+                yield_amount = st.number_input(label="Yield [kg]", value=None, min_value=0.0, help="Expected or Actual Yield amount in kg, if left empty, it will be set to None")
+                production_cost = st.number_input(label="Production Cost", value=None, min_value=0.0, help="Cost of producing the crop, e.g. seed price,fertilizer, water, etc.")
+                export_cost = st.number_input(label="Sold Price", value=None, min_value=0.0, help="Expected selling price of the crop")
             submit = st.form_submit_button("Submit", type="primary", width='stretch')
             
             if submit:  # Check if ID is taken or not
@@ -327,16 +330,18 @@ def add_data(database):
                             st.rerun()
     elif database == "livestock_database":
         with st.form(key="livestock info"):
-            st.success("Mandatory Fields 📌")
-            livestock_type = st.selectbox(label="Type", options=[key for key in livestock_dict], help="Type of livestock")
-            production_year = st.text_input("Production Year")
-            amount = st.number_input(label="Amount", value=1, min_value=1, help="Number of livestock imported or bought")
-            date = st.date_input("Purchase Date: ",help="Date when the livestock was imported or bought")
-            st.info("Non Mandatory Fields ℹ️")
-            import_cost = st.number_input(label="Purchase Cost", value=None, min_value=0.0, help="Cost of importing or buying the livestock")
-            production_cost = st.number_input(label="Production Cost", value=None, min_value=0.0, help="Cost of producing the crop, e.g. fertilizer, water, etc.")
-            export_date = st.date_input(label="Sold Date: ",value=None,help="estimated selling date, if left empty, it will be filled automatically")
-            export_cost = st.number_input(label="Sold Price", value=None, min_value=0.0, help="Expected selling price of the crop")
+            with col1:
+                st.success("Mandatory Fields")
+                livestock_type = st.selectbox(label="Type", options=[key for key in livestock_dict], help="Type of livestock")
+                production_year = st.text_input("Production Year")
+                amount = st.number_input(label="Amount", value=1, min_value=1, help="Number of livestock imported or bought")
+                date = st.date_input("Purchase Date: ",help="Date when the livestock was imported or bought")
+            with col2:
+                st.info("Non Mandatory Fields")
+                import_cost = st.number_input(label="Purchase Cost", value=None, min_value=0.0, help="Cost of importing or buying the livestock")
+                production_cost = st.number_input(label="Production Cost", value=None, min_value=0.0, help="Cost of producing the crop, e.g. fertilizer, water, etc.")
+                export_date = st.date_input(label="Sold Date: ",value=None,help="estimated selling date, if left empty, it will be filled automatically")
+                export_cost = st.number_input(label="Sold Price", value=None, min_value=0.0, help="Expected selling price of the crop")
             submit = st.form_submit_button("Submit", type="primary", width='stretch')           
             if submit:  # Check if ID is taken or not
                 if all([production_year, livestock_type, date, amount, submit]) == False:  # check if every parameter is filled
