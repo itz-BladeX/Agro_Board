@@ -74,7 +74,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # Crop
 with st.expander("Crop Data"):
-    st.markdown("""<h3 style="color: white; text-align: center; font-family: Arial, sans-serif;"> Crops </h3>""", unsafe_allow_html=True)
+    st.markdown("""<h3 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> Crops </h3>""", unsafe_allow_html=True)
     heights = [220,260, 220, 260]
     with shelve.open(crop) as db:
         i = 0
@@ -110,7 +110,7 @@ with st.expander("Crop Data"):
     # Livestock
 
 with st.expander("LiveStock Data"):
-    st.markdown("""<h3 style=" color: white; text-align: center; font-family: Arial, sans-serif;"> LiveStocks </h3>""", unsafe_allow_html=True)
+    st.markdown("""<h3 style=" color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> LiveStocks </h3>""", unsafe_allow_html=True)
     heights = [220,260, 220, 260]
     with shelve.open(livestock) as db:
         
@@ -145,20 +145,18 @@ with st.expander("LiveStock Data"):
                             i += 1
 for x in range(3):
     st.write("")
-col1, col2 = st.columns(2)
-# try:
-#         with shelve.open("config") as db:
-#             sn = db["SN"]
-#             disable = False
-# except: disable = True
-with col1:
-    with st.container(border=True):
+
+
+with st.container(border=True):
+    st.markdown("""<h3 style=" color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> Setting </h3>""", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+
         with shelve.open('config') as db:
-            
-            st.button(" ⬆️ Upload Data", on_click=sup.package_data, width="stretch", disabled=sup.check_sn())
-with col2:
-    with st.container(border=True):
+            st.button(" ⬆️ Upload Data", on_click=sup.package_data, width="stretch", disabled=sup.check_sn(), type="secondary")
+    with col2:
+
         with shelve.open('config') as db:
-            st.button("⚙️ Edit Personal / Config /  Data", on_click=sup.edit_config, width="stretch", disabled=sup.check_sn())
+            st.button("⚙️ Edit Personal / Config /  Data", on_click=sup.edit_config, width="stretch", disabled=sup.check_sn(), type="secondary")
 
 
