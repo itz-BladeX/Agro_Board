@@ -1,7 +1,7 @@
 import streamlit as st
 import shelve
 import pandas as pd
-import supplementary as sup
+import functions as func
 from streamlit_javascript import st_javascript
 import time
 
@@ -11,7 +11,7 @@ st.logo("logo.png", size='large')
 
 
 Width = st_javascript("window.innerWidth", key="livestock_width")
-sup.render_nav("Livestock Data", Width)
+func.render_nav("Livestock Data", Width)
 time.sleep(0.5)
 
 
@@ -53,10 +53,10 @@ if st.session_state.big:
         with col6: st.button("Production Cost", width="stretch")
         with col7: st.button("Sold Price", width="stretch")
         with col8: st.button ("Profit", width="stretch")
-        with col9: st.button("", icon=":material/add:",width="stretch", on_click=sup.add_data, args=(database,))
+        with col9: st.button("", icon=":material/add:",width="stretch", on_click=func.add_data, args=(database,))
         with col10: st.button("",icon=":material/autorenew:", width="stretch",on_click=st.rerun)
         years = [key for key in db]
-        year_list = sup.sort_years(list(set(years)))
+        year_list = func.sort_years(list(set(years)))
         for yr in year_list:
 
             st.button (yr, width="stretch")
@@ -70,12 +70,12 @@ if st.session_state.big:
                         with col2: st.info(livestock.amount)
                         with col3: st.info(livestock.date)
                         with col4: st.info(livestock.export_date)
-                        with col5: st.info(sup.format_number(livestock.import_cost))
-                        with col6: st.info(sup.format_number(livestock.production_cost))
-                        with col7: st.info(sup.format_number(livestock.export_cost))
-                        with col8: st.info(sup.format_number(livestock.profit))
-                        with col9: st.button(icon=":material/edit:", label="", key=f"edit{yr}{livestock_type}", on_click=sup.edit, args=(database,None, yr,livestock_type ), type="secondary", help="Edit Data", width="stretch")
-                        with col10: st.button(icon=":material/delete:",label="", key=f"del{yr}{livestock_type}", on_click=sup.delete, args=(database,yr, livestock_type), type="primary", help="Delete Data Permanently", width="stretch")
+                        with col5: st.info(func.format_number(livestock.import_cost))
+                        with col6: st.info(func.format_number(livestock.production_cost))
+                        with col7: st.info(func.format_number(livestock.export_cost))
+                        with col8: st.info(func.format_number(livestock.profit))
+                        with col9: st.button(icon=":material/edit:", label="", key=f"edit{yr}{livestock_type}", on_click=func.edit, args=(database,None, yr,livestock_type ), type="secondary", help="Edit Data", width="stretch")
+                        with col10: st.button(icon=":material/delete:",label="", key=f"del{yr}{livestock_type}", on_click=func.delete, args=(database,yr, livestock_type), type="primary", help="Delete Data Permanently", width="stretch")
 
 
 else:  # DataFrame for small table id toggle not toggled

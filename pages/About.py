@@ -1,12 +1,12 @@
 import streamlit as st
 from streamlit_javascript import st_javascript
-import supplementary as sup
+import functions as func
 import time
 st.set_page_config(page_title="AGRO-BOARD", layout="wide", )
 st.logo("logo.png")
 
 width = st_javascript("window.innerWidth", key="main_width")
-sup.render_nav("About", width)
+func.render_nav("About", width)
 time.sleep(0.5)
 
 

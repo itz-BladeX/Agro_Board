@@ -1,7 +1,7 @@
 import streamlit as st
 import shelve
 import pandas as pd
-import supplementary as sup
+import functions as func
 import time
 from streamlit_javascript import st_javascript
 
@@ -11,7 +11,7 @@ database = "crop_database"
 
 width = st_javascript("window.innerWidth", key="crop_width")
 with st.spinner("Loading..."):
-    sup.render_nav("Crop Data", width)
+    func.render_nav("Crop Data", width)
 
 time.sleep(0.5)
 width = st_javascript("window.innerWidth")
@@ -59,10 +59,10 @@ if st.session_state.big:
         with col5: st.button("Production Cost", width="stretch")
         with col6: st.button("Sold Price", width="stretch")
         with col7: st.button("Profit", width="stretch")
-        with col8: st.button("",  icon=":material/add:", on_click=sup.add_data, args=(database,), width="stretch")
+        with col8: st.button("",  icon=":material/add:", on_click=func.add_data, args=(database,), width="stretch")
         with col9: st.button("", icon=":material/autorenew:", on_click=st.rerun,width="stretch")
         years = [key for key in db]
-        year_list = sup.sort_years(list(set(years)))
+        year_list = func.sort_years(list(set(years)))
         for yr in year_list:
             st.button(f"{yr}", width="stretch")
             for select_year in db:
@@ -76,12 +76,12 @@ if st.session_state.big:
                         with col1: st.success(crop.type)
                         with col2: st.success(crop.date)
                         with col3: st.success(str(crop.estimated) + " " + crop.user)
-                        with col4: st.success(sup.format_number(crop.yield_amount))
-                        with col5: st.success(sup.format_number(crop.production_cost))
-                        with col6: st.success(sup.format_number(crop.export_cost))
-                        with col7: st.success(sup.format_number(crop.profit))
-                        with col8: st.button(icon=":material/edit:", label="", key=f"edit{yr}{crop_type}", on_click=sup.edit, args=(database, None, yr, crop_type), type="secondary", width='stretch')
-                        with col9: st.button(icon=":material/delete:",label="", key=f"del{yr}{crop_type}", on_click=sup.delete, args=(database, yr, crop_type), type="primary", width="stretch")
+                        with col4: st.success(func.format_number(crop.yield_amount))
+                        with col5: st.success(func.format_number(crop.production_cost))
+                        with col6: st.success(func.format_number(crop.export_cost))
+                        with col7: st.success(func.format_number(crop.profit))
+                        with col8: st.button(icon=":material/edit:", label="", key=f"edit{yr}{crop_type}", on_click=func.edit, args=(database, None, yr, crop_type), type="secondary", width='stretch')
+                        with col9: st.button(icon=":material/delete:",label="", key=f"del{yr}{crop_type}", on_click=func.delete, args=(database, yr, crop_type), type="primary", width="stretch")
                 
                         
 

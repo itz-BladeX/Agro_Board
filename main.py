@@ -1,6 +1,6 @@
 import streamlit as st
 # import weather
-import supplementary as sup
+import functions as func
 import shelve
 import streamlit_option_menu as om
 import time
@@ -11,7 +11,7 @@ st.logo("logo.png", size='large')
 
 
 width = st_javascript("window.innerWidth", key="main_width")
-sup.render_nav("main", width)
+func.render_nav("main", width)
 time.sleep(0.5)
 
 st.markdown("""
@@ -24,7 +24,6 @@ st.markdown("""
     /* section[data-testid="stSidebar"] nav { display: none !important; } */
 </style>
 """, unsafe_allow_html=True)
-
 
 crop = "crop_database"
 livestock = "livestock_database"
@@ -48,13 +47,13 @@ with st.container():  # Weather Section
     st.set_page_config(page_title="AGRO-BOARD", layout="wide")
     with st.spinner("Fetching Weather Data..."):
         with matric_col1:
-            st.metric(label="Temperature", value=sup.get_weather('temp'), border=True)
+            st.metric(label="Temperature", value=func.get_weather('temp'), border=True)
         with matric_col2:
-            st.metric("Wind Speed", sup.get_weather('wind'), border=True)
+            st.metric("Wind Speed", func.get_weather('wind'), border=True)
         with matric_col3:
-            st.metric("Precipitation", sup.get_weather('rainfall'), border=True)
+            st.metric("Precipitation", func.get_weather('rainfall'), border=True)
         with matric_col4:
-            st.metric("Weather Station", sup.get_weather('station'), border=True)
+            st.metric("Weather Station", func.get_weather('station'), border=True)
 
     st.divider()
 
@@ -63,7 +62,7 @@ with shelve.open("config") as db:
         SN = db["SN"]
         name = db["name"]
     except KeyError:
-        sup.configuration()
+        func.configuration()
 # Widgets
 
 st.markdown("""
@@ -78,35 +77,35 @@ with st.expander("Crop Data"):
     heights = [220,260, 220, 260]
     with shelve.open(crop) as db:
         i = 0
-        years = [key for key in db]
-        year_list = sup.sort_years(list(set(years)))
+        years = [key for key in db] # extract all the availbalbe years from db
+        year_list = func.sort_years(years) # sort years in decending order
+        # collect user selected years into a list, remove dublicates and sort in decending order
+        # Only allow user to select existing years
         selected_year_list = st.multiselect("Filter By Year", options=year_list, default=year_list, key="multiselect_crop")
-        selected_year_list = sup.sort_years(list(set(selected_year_list)))
+        selected_year_list = func.sort_years(selected_year_list)
         st.divider()
         col1, col2, col3, col4 = st.columns(4)
         cols = [col1, col2, col3, col4]
-        for yr in selected_year_list:
-            for select_year in db:
-                if select_year == yr:
-                    year_data = db[select_year]
-                    for data_type in year_data:
-                        data = year_data[data_type]
-                        height = heights[i]
-                        with cols[i]:
-                            with st.container(border=True):
-                                left, right = st.columns([1.1,1])
-                                with left:
-                                    st.metric(label=f"{yr}", value=f"{data_type}",width="stretch", )
-                                with right:
-                                    st.metric(label=f"Crop Yield[KG]", value=millify(int(db[yr][data_type].yield_amount),precision=1), width="stretch")
-                                st.altair_chart(sup.alter_graph(data_year=yr,data_type=data_type, database=crop, height=height), use_container_width=True)
-                                st.button(f"**{db[yr][data_type].date} -- {db[yr][data_type].estimated}**", width="stretch", type="tertiary", key=f"{yr}{data_type}{db[yr][data_type].type}")
-                        if i >= 3:
-                            i = 0
-                            heights = heights[::-1]
-                        else:
-                            i += 1
-            
+        for yr in selected_year_list: # yr - years user selected
+            year_data = db[yr]
+            for data_type in year_data:
+                data = year_data[data_type]
+                height = heights[i]
+                with cols[i]:
+                    with st.container(border=True):
+                        left, right = st.columns([1.1,1])
+                        with left:
+                            st.metric(label=f"{yr}", value=f"{data_type}",width="stretch", )
+                        with right:
+                            st.metric(label=f"Crop Yield[KG]", value=millify(int(db[yr][data_type].yield_amount),precision=1), width="stretch")
+                        st.altair_chart(func.alter_graph(data_year=yr,data_type=data_type, database=crop, height=height), use_container_width=True)
+                        st.button(f"**{db[yr][data_type].date} -- {db[yr][data_type].estimated}**", width="stretch", type="tertiary", key=f"{yr}{data_type}{db[yr][data_type].type}")
+                if i >= 3:
+                    i = 0
+                    heights = heights[::-1]
+                else:
+                    i += 1
+    
     # Livestock
 
 with st.expander("LiveStock Data"):
@@ -116,9 +115,9 @@ with st.expander("LiveStock Data"):
         
         i = 0
         years = [key for key in db]
-        year_list = sup.sort_years(list(set(years)))
+        year_list = func.sort_years(years)
         selected_year_list = st.multiselect("Filter By Year", options=year_list, default=year_list, key="multiselect_livestock")
-        selected_year_list = sup.sort_years(list(set(selected_year_list)))
+        selected_year_list = func.sort_years(selected_year_list)
         st.divider()
         col1, col2, col3, col4 = st.columns(4)
         cols = [col1, col2, col3, col4]
@@ -136,14 +135,14 @@ with st.expander("LiveStock Data"):
                                     st.metric(label=f"{yr}", value=f"{data_type}")
                                 with right:
                                     st.metric(label="Livestock Amount", value=db[yr][data_type].amount)
-                                st.altair_chart(sup.alter_graph(data_year=yr,data_type=data_type, database=livestock,height=height), use_container_width=True)
+                                st.altair_chart(func.alter_graph(data_year=yr,data_type=data_type, database=livestock,height=height), use_container_width=True)
                                 st.button(f"**{db[yr][data_type].date} -- {db[yr][data_type].export_date}**", width="stretch", type="tertiary", key=f"{yr}{data_type}{db[yr][data_type].type} ")
                         if i >= 3:
                             i = 0
                             heights = heights[::-1]
                         else:
                             i += 1
-for x in range(3):
+for _ in range(3):
     st.write("")
 
 
@@ -153,10 +152,10 @@ with st.container(border=True):
     with col1:
 
         with shelve.open('config') as db:
-            st.button(" ⬆️ Upload Data", on_click=sup.package_data, width="stretch", disabled=sup.check_sn(), type="secondary")
+            st.button(" ⬆️ Upload Data", on_click=func.package_data, width="stretch", disabled=func.check_sn(), type="secondary")
     with col2:
 
         with shelve.open('config') as db:
-            st.button("⚙️ Edit Personal / Config /  Data", on_click=sup.edit_config, width="stretch", disabled=sup.check_sn(), type="secondary")
+            st.button("⚙️ Edit Personal / Config /  Data", on_click=func.edit_config, width="stretch", disabled=func.check_sn(), type="secondary")
 
 

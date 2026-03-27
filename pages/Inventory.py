@@ -1,7 +1,7 @@
 import streamlit as st
 import shelve
 import pandas as pd
-import supplementary as sup
+import functions as func
 from streamlit_javascript import st_javascript
 import time
 
@@ -11,7 +11,7 @@ st.set_page_config(layout="wide")
 st.logo("logo.png", size='large')
 
 Width = st_javascript("window.innerWidth", key="inventory_width")
-sup.render_nav("Inventory Data", Width)
+func.render_nav("Inventory Data", Width)
 time.sleep(0.5)
 
 
@@ -35,7 +35,7 @@ if st.session_state.big:
         with col2: st.button("Label",width="stretch")
         with col3: st.button("Quantity [Units\Litre\]",width="stretch")
         with col4: st.button("Date", width="stretch")
-        with col5: st.button("Add", width="stretch", icon=":material/add:", on_click=sup.add_data, args=(database,))
+        with col5: st.button("Add", width="stretch", icon=":material/add:", on_click=func.add_data, args=(database,))
         with col6: st.button("Reload ",width="stretch", icon=":material/autorenew:", on_click=st.rerun)
 
         # st.divider()
@@ -49,8 +49,8 @@ if st.session_state.big:
                 with col2: st.warning(inventory.label)
                 with col3: st.warning(inventory.quantity)
                 with col4: st.warning(inventory.date)
-                with col5: st.button("", icon=":material/edit:", type="secondary", key=f"edit{key}",help="Edit Data", on_click=sup.edit, args=(database,key), width="stretch")
-                with col6: st.button("", icon=":material/delete:", type="primary",key=f"del{key}", help="Delete Data Permanently", on_click=sup.delete, args=(database, key), width="stretch")
+                with col5: st.button("", icon=":material/edit:", type="secondary", key=f"edit{key}",help="Edit Data", on_click=func.edit, args=(database,key), width="stretch")
+                with col6: st.button("", icon=":material/delete:", type="primary",key=f"del{key}", help="Delete Data Permanently", on_click=func.delete, args=(database, key), width="stretch")
 
 
 
