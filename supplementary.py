@@ -181,8 +181,10 @@ def estimated_date(current_date, add_days):
     month = current_date.month
     year = current_date.year
     while add_days > 0:  # Calculate the day, month and year
-        if month == 2 and is_leap_year(year):
+        leap_year = True
+        if month == 2 and is_leap_year(year) and leap_year:
             days_in_month[month] += 1
+            leap_year = False
         if day < days_in_month[month]:
             day += 1
         else:
