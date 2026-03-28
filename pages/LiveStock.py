@@ -53,12 +53,11 @@ if st.session_state.big:
         with col6: st.button("Production Cost", width="stretch")
         with col7: st.button("Sold Price", width="stretch")
         with col8: st.button ("Profit", width="stretch")
-        with col9: st.button("", icon=":material/add:",width="stretch", on_click=func.add_data, args=(database,))
+        with col9: st.button("", icon=":material/add:",width="stretch", on_click=func.add_data, args=(database,"livestock"))
         with col10: st.button("",icon=":material/autorenew:", width="stretch",on_click=st.rerun)
         years = [key for key in db]
         year_list = func.sort_years(list(set(years)))
         for yr in year_list:
-
             st.button (yr, width="stretch")
             for selected_year in db:  # Loop over the db keys and display results
                 if selected_year == yr:

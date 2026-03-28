@@ -35,7 +35,7 @@ if st.session_state.big:
         with col2: st.button("Label",width="stretch")
         with col3: st.button("Quantity [Units\Litre\]",width="stretch")
         with col4: st.button("Date", width="stretch")
-        with col5: st.button("Add", width="stretch", icon=":material/add:", on_click=func.add_data, args=(database,))
+        with col5: st.button("Add", width="stretch", icon=":material/add:", on_click=func.add_data, args=(database,"inventory"))
         with col6: st.button("Reload ",width="stretch", icon=":material/autorenew:", on_click=st.rerun)
 
         # st.divider()

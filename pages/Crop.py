@@ -59,7 +59,7 @@ if st.session_state.big:
         with col5: st.button("Production Cost", width="stretch")
         with col6: st.button("Sold Price", width="stretch")
         with col7: st.button("Profit", width="stretch")
-        with col8: st.button("",  icon=":material/add:", on_click=func.add_data, args=(database,), width="stretch")
+        with col8: st.button("",  icon=":material/add:", on_click=func.add_data, args=(database,"crop"), width="stretch")
         with col9: st.button("", icon=":material/autorenew:", on_click=st.rerun,width="stretch")
         years = [key for key in db]
         year_list = func.sort_years(list(set(years)))

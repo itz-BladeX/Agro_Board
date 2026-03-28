@@ -1,5 +1,9 @@
 import requests, geocoder, datetime as dt, streamlit as st, altair as alt, shelve, pandas as pd, streamlit_option_menu as om, time, requests
+from millify import millify
 from datetime import datetime
+crop_db = "crop_database"
+livestock_db= "livestock_database"
+inventory_db = "inventory_database"
 # import geocoder
 # import datetime as dt
 # import streamlit as st
@@ -22,49 +26,49 @@ def format_number(number):
 # ---------------------------------------------------------------------------------------------------\
 # Crop Class used under Crop.py / tab2
 class class_crop:
-    def __init__(self, type=None, date=None,production_year=None, estimated=None, yield_amount=None,profit=None, production_cost=None, export_cost=None):
-        self.production_year = production_year
+    def __init__(self, type=None, import_date=None,prod_year=None, export_date=None, yield_amount=None,profit=None, prod_cost=None, export_cost=None):
+        self.prod_year = prod_year
         self.type = type
         self.yield_amount = yield_amount
         self.export_cost = export_cost
-        self.date = date
-        self.production_cost = production_cost
-        if estimated != None:
-            self.estimated = estimated
+        self.import_date = import_date
+        self.prod_cost = prod_cost
+        if export_cost != None:
+            self.export = export_date
             self.user = "[User]"
         else:
-            self.estimated = estimated_date(date, crop_dict[type])
+            self.export = estimated_date(import_date, crop_dict[type])
             self.user  = "[Auto]"
-        if export_cost != None and production_cost != None:
-            self.profit = cal_profit(export_cost=export_cost, production_cost=production_cost)
+        if export_cost != None and prod_cost != None:
+            self.profit = cal_profit(export_cost=export_cost, production_cost=prod_cost)
         else:
             self.profit = profit
 # ---------------------------------------------------------------------------------------------------
 # ==================================================================================================
 # ---------------------------------------------------------------------------------------------------
 class class_livestock:
-    def __init__(self, type, date, amount, production_year,export_date=None, import_cost=None, export_cost=None,production_cost=None, profit=None):
-        self.production_year = production_year
+    def __init__(self, type, import_date, amount, prod_year,export_date=None, import_cost=None, export_cost=None,prod_cost=None, profit=None):
+        self.prod_year = prod_year
         self.type = type
-        self.date = date
+        self.import_date = import_date
         self.export_date = export_date
-        self.amount = amount
+        self.livestock_amount = amount
         self.import_cost = import_cost
         self.export_cost = export_cost
-        self.production_cost = production_cost
+        self.prod_cost = prod_cost
         if import_cost != None and export_cost != None:
-            self.profit = cal_profit(import_cost=import_cost, export_cost=export_cost, production_cost=production_cost)
+            self.profit = cal_profit(import_cost=import_cost, export_cost=export_cost, production_cost=prod_cost)
         else:
             self.profit = profit
 # ---------------------------------------------------------------------------------------------------
 # ==================================================================================================
 # ---------------------------------------------------------------------------------------------------
 class class_inventory:
-    def __init__(self, id, label, quantity, date):
+    def __init__(self, id, label, quantity, import_date):
         self.id = id
         self.label = label
         self.quantity = quantity
-        self.date = date
+        self.import_date = import_date
 # ---------------------------------------------------------------------------------------------------
 # ==================================================================================================
 # ---------------------------------------------------------------------------------------------------
@@ -180,6 +184,7 @@ def estimated_date(current_date, add_days):
     day = current_date.day
     month = current_date.month
     year = current_date.year
+    leap_year = False
     while add_days > 0:  # Calculate the day, month and year
         leap_year = True
         if month == 2 and is_leap_year(year) and leap_year:
@@ -195,7 +200,9 @@ def estimated_date(current_date, add_days):
                 year += 1
         add_days -= 1
     # return the estimated date as datetime object
-    return dt.date(year, month, day)
+    print(year, month, day)
+    date = dt.date(year, month, day)
+    return date
 # ---------------------------------------------------------------------------------------------------
 # ==================================================================================================
 # ---------------------------------------------------------------------------------------------------
@@ -237,22 +244,21 @@ def alter_graph(data_year, data_type, database, height): #
 def percent_complete(data):
  
     try:
-        start_date = data.date
-        try: end_date = data.estimated
-        except: end_date = data.export_date
-        finally:
-            print(type(start_date), start_date, end_date, id)
-            total_days = (end_date - start_date).days
-            current_date = datetime.now().date()
-            days_passed = (current_date - start_date).days
+        start_date = data.import_date
+        end_date = data.export_date
+        
+        print(type(start_date), start_date, end_date, id)
+        total_days = (end_date - start_date).days
+        current_date = datetime.now().date()
+        days_passed = (current_date - start_date).days
 
-            print(total_days, days_passed, current_date, start_date)
-            if total_days == 0:
-                day = 100
-            else:
-                day = min((days_passed / total_days) *100,100)
+        print(total_days, days_passed, current_date, start_date)
+        if total_days == 0:
+            day = 100
+        else:
+            day = min((days_passed / total_days) *100,100)
 
-            return f"{int(day)} %"
+        return f"{int(day)} %"
     except:
         return None
 # ---------------------------------------------------------------------------------------------------
@@ -286,108 +292,75 @@ def render_nav(current_page, width):
 # ==================================================================================================
 # ---------------------------------------------------------------------------------------------------
 @st.dialog("Add Data", width="medium")
-def add_data(database):
+def add_data(database,form_type):
     col1, col2 = st.columns(2)
-    if database == "crop_database":
-        with st.form(key="crop info"):
+    option_dict = crop_dict if database == crop_db else livestock_dict if database == livestock_db else inventory_dict
+    with st.form(key=f"{form_type} info"):
+        st.success("Mandatory Fields")
+        if database == inventory_db:
+                id = str(st.text_input("ID: ", placeholder="3 digit ID recommended", help="Unique ID for each inventory item"))
+                label = st.selectbox(label="Label", options=[key for key in inventory_dict], help="Type of inventory item")
+                import_date = st.date_input("Date: ", help="Date when the inventory item was added")
+                quantity = st.number_input(label="Quantity", value=1, min_value=1, help="Quantity of the inventory item")
+        else:
             with col1:
                 st.success("Mandatory Fields")
-                # id = str(st.text_input("ID: ", placeholder="3 digit ID recommended", help="Unique ID for each crop"))
-                crop_type = st.selectbox(label="Type", options=[key for key in crop_dict],help="Type of crop")
-                production_year = st.text_input("Production Year", help="Only Production year, partial years like 2020/2021 are Allowed", placeholder="Production Year")
-                date = st.date_input("Planted Date: ", help="Date when the crop was planted")
+                type = st.selectbox(label="Type", options=[key for key in option_dict],help="Type of {form_type}")
+                if database == livestock_db:
+                    amount = st.number_input(label="Amount", value=1, min_value=1, help="Number of livestock imported or bought")
+                prod_year = st.text_input(label="Production Year", help="Production year, partial years like 2020/2021 are Allowed", placeholder="Production Year")
+                import_date = st.date_input("Planted Date: ", help="Date when the {form_type} was imported")
+                
             with col2:
-                st.info("Non Mandatory Fields")
-                estimated = st.date_input(label="Harvest Date: ",value=None,help="date of harvest. If left empty, it will be calculated automatically")
-                yield_amount = st.number_input(label="Yield [kg]", value=None, min_value=0.0, help="Expected or Actual Yield amount in kg, if left empty, it will be set to None")
-                production_cost = st.number_input(label="Production Cost", value=None, min_value=0.0, help="Cost of producing the crop, e.g. seed price,fertilizer, water, etc.")
-                export_cost = st.number_input(label="Sold Price", value=None, min_value=0.0, help="Expected selling price of the crop")
-            submit = st.form_submit_button("Submit", type="primary", width='stretch')
-            
-            if submit:  # Check if ID is taken or not
-                if not all([crop_type, date, submit, verify_production_year(production_year)]):  # check if every parameter is filled
-                    st.warning("Please Fill every box")
-                else:
-                    with shelve.open(database) as db:
-                       
-                        crop_data = class_crop(
-                            date=date, 
-                            type = crop_type,
-                            production_year=production_year,
-                            estimated=estimated,
-                            export_cost=export_cost, 
-                            production_cost=production_cost,
-                            yield_amount=yield_amount,
-                            )
-                        year_data = db.get(production_year, {})
-                        if crop_type in year_data:
-                            st.error(f"Cant Add an Already Existing Crop")
-                            st.warning(f"Please Check your Production Year or try editing")
-                        else:
-                            # year_data = db[production_year] if db[production_year] else db[production_year] = {}  # Get the dict for this year
-                            year_data[crop_type] =  crop_data # Add or update crop type
-                            db[production_year] = year_data   # Save back to shelve
-                            st.success(f"Data Saved Successfully!", width="stretch")
-                            time.sleep(0.5)
-                            st.rerun()
-    elif database == "livestock_database":
-        with st.form(key="livestock info"):
-            with col1:
-                st.success("Mandatory Fields")
-                livestock_type = st.selectbox(label="Type", options=[key for key in livestock_dict], help="Type of livestock")
-                production_year = st.text_input("Production Year")
-                amount = st.number_input(label="Amount", value=1, min_value=1, help="Number of livestock imported or bought")
-                date = st.date_input("Purchase Date: ",help="Date when the livestock was imported or bought")
-            with col2:
-                st.info("Non Mandatory Fields")
-                import_cost = st.number_input(label="Purchase Cost", value=None, min_value=0.0, help="Cost of importing or buying the livestock")
-                production_cost = st.number_input(label="Production Cost", value=None, min_value=0.0, help="Cost of producing the crop, e.g. fertilizer, water, etc.")
-                export_date = st.date_input(label="Sold Date: ",value=None,help="estimated selling date, if left empty, it will be filled automatically")
-                export_cost = st.number_input(label="Sold Price", value=None, min_value=0.0, help="Expected selling price of the crop")
-            submit = st.form_submit_button("Submit", type="primary", width='stretch')           
-            if submit:  # Check if ID is taken or not
-                if all([production_year, livestock_type, date, amount, submit]) == False:  # check if every parameter is filled
-                    st.warning("Please Fill every box")
-                else:
-                    with shelve.open(database) as db:
-                        livestock_data = class_livestock(
-                            type=livestock_type,
-                            date=date,
-                            production_year=production_year,
-                            amount=amount,
-                            import_cost=import_cost,
-                            export_cost=export_cost,
-                            production_cost=production_cost,
-                            export_date=export_date
-                            )
-                        year_data = db.get(production_year, {})
-                        if livestock_type in year_data:
-                            st.error(f"Can't Add an Already Existing Livestock")
-                            st.warning(f"Please Check your Production Year or try editing")
-                        else:
-                            year_data[livestock_type] =  livestock_data
-                            db[production_year] = year_data
-                            st.success(f"Data Saved Successfully! ", width="stretch")
-                            time.sleep(0.5)
-                            st.rerun()             
-    elif database == "inventory_database":
-        with st.form(key="inventory info"):
-            st.success("Mandatory Fields 📌")
-            id = str(st.text_input("ID: ", placeholder="3 digit ID recommended", help="Unique ID for each inventory item"))
-            label = st.selectbox(label="Label", options=[key for key in inventory_dict], help="Type of inventory item")
-            date = st.date_input("Date: ", help="Date when the inventory item was added")
-            quantity = st.number_input(label="Quantity", value=1, min_value=1, help="Quantity of the inventory item")
-            submit = st.form_submit_button("Submit", type="primary", width='stretch')           
-            if submit:  # Check if ID is taken or not
-                if all([id, label, date, quantity, submit]) == False:  # check if every parameter is filled
-                    st.warning("Please Fill every box")
-                else:
+                st.info("Non-Mandatory Fields")
+                if database == crop_db:
+                    export_date = st.date_input(label="Harvest Date: ",value=None,help="date of export. {If left empty, it will be calculated automatically")
+                    yield_amount = st.number_input(label="Yield [kg]", value=None, min_value=0.0,help="Expected or Actual Yield amount in kg, if left empty, it will be set to None")
+                    prod_cost = st.number_input(label="Production Cost", value=None, min_value=0.0, help="Cost of producing, e.g. seed price,fertilizer, water, etc.")
+                    export_cost = st.number_input(label="Sold Price", value=None, min_value=0.0, help="Expected selling price of the crop")
+                elif database == livestock_db:
+                    import_cost = st.number_input(label="Purchase Cost", value=None, min_value=0.0, help="Cost of importing or buying the livestock")
+                    export_cost = st.number_input(label="Sold Price", value=None, min_value=0.0, help="Sold price of the Livestock")
+                    prod_cost = st.number_input(label="Production Cost", value=None, min_value=0.0, help="Cost of producing the crop, e.g. fertilizer, water, etc.")
+                    export_date = st.date_input(label="Sold Date: ",value=None,help="estimated selling date, if left empty, it will be filled automatically")
+                    
+        submit = st.form_submit_button("Submit", type="primary", width='stretch')
+        
+        if submit: 
+            condition = not all([type, import_date, submit, verify_production_year(prod_year)]) if database != inventory_db else not all([id, label, import_date, quantity, submit])
+            if condition:  # check if every parameter is filled
+                st.warning("Please Fill every Mandatory Fields")
+            else:
+                if database == crop_db:
+                    data = dict(
+                        type = type,
+                        import_date=import_date, 
+                        prod_year=prod_year,
+                        export_date=export_date, 
+                        yield_amount=yield_amount,
+                        prod_cost=prod_cost,
+                        export_cost = export_cost
+                        )
+                    save(database=database,type=type, data=data, prod_year=prod_year)
+                elif database == livestock_db:
+                    data = dict(
+                        type=type,
+                        import_date=import_date,
+                        prod_year=prod_year,
+                        amount=amount,
+                        import_cost=import_cost,
+                        export_cost=export_cost,
+                        prod_cost=prod_cost,
+                        export_date=export_date
+                        )
+                    save(database=database,type=type, data=data, prod_year=prod_year)
+                elif database == inventory_db:
                     with shelve.open(database) as db:
                         if id not in db:
                             inventory = class_inventory(
                                 id=id,
                                 label=label,
-                                date=date,
+                                import_date=import_date,
                                 quantity=quantity
                                 )
                             db[id] = inventory
@@ -397,9 +370,116 @@ def add_data(database):
                         else:
                             st.error("Inventory ID is Taken")
                             st.warning("Try Using Another ID")
+
+                
+                # with shelve.open(database) as db:
+                #     year_data = db.get(prod_year, {})
+                #     if type in year_data:
+                #         st.error(f"Cant Add an Already Existing Crop")
+                #         st.warning(f"Please Check your Production Year or try editing")
+                #     else:
+                #         # year_data = db[production_year] if db[production_year] else db[production_year] = {}  # Get the dict for this year
+                #         year_data[type] =  data # Add or update crop type
+                #         db[prod_year] = year_data   # Save back to shelve
+                #         st.success(f"Data Saved Successfully!", width="stretch")
+                #         time.sleep(0.5)
+                #         st.rerun()
+    # if database == "livestock_database":
+    #     with st.form(key="livestock info"):
+    #         with col1:
+    #             st.success("Mandatory Fields")
+    #             livestock_type = st.selectbox(label="Type", options=[key for key in livestock_dict], help="Type of livestock")
+    #             prod_year = st.text_input("Production Year")
+    #             amount = st.number_input(label="Amount", value=1, min_value=1, help="Number of livestock imported or bought")
+    #             date = st.date_input("Purchase Date: ",help="Date when the livestock was imported or bought")
+    #         with col2:
+    #             st.info("Non Mandatory Fields")
+    #             import_cost = st.number_input(label="Purchase Cost", value=None, min_value=0.0, help="Cost of importing or buying the livestock")
+    #             prod_cost = st.number_input(label="Production Cost", value=None, min_value=0.0, help="Cost of producing the crop, e.g. fertilizer, water, etc.")
+    #             export_date = st.date_input(label="Sold Date: ",value=None,help="estimated selling date, if left empty, it will be filled automatically")
+    #             export_cost = st.number_input(label="Sold Price", value=None, min_value=0.0, help="Expected selling price of the crop")
+    #         submit = st.form_submit_button("Submit", type="primary", width='stretch')           
+    #         if submit:  # Check if ID is taken or not
+    #             if all([prod_year, livestock_type, date, amount, submit]) == False:  # check if every parameter is filled
+    #                 st.warning("Please Fill every box")
+    #             else:
+    #                 with shelve.open(database) as db:
+    #                     livestock_data = class_livestock(
+    #                         type=livestock_type,
+    #                         date=date,
+    #                         prod_year=prod_year,
+    #                         amount=amount,
+    #                         import_cost=import_cost,
+    #                         export_cost=export_cost,
+    #                         prod_cost=prod_year,
+    #                         export_date=export_date
+    #                         )
+    #                     year_data = db.get(prod_year, {})
+    #                     if livestock_type in year_data:
+    #                         st.error(f"Can't Add an Already Existing Livestock")
+    #                         st.warning(f"Please Check your Production Year or try editing")
+    #                     else:
+    #                         year_data[livestock_type] =  livestock_data
+    #                         db[prod_year] = year_data
+    #                         st.success(f"Data Saved Successfully! ", width="stretch")
+    #                         time.sleep(0.5)
+    #                         st.rerun()             
+    # if database == "inventory_database":
+        # with st.form(key="inventory info"):
+        #     st.success("Mandatory Fields 📌")
+        #     id = str(st.text_input("ID: ", placeholder="3 digit ID recommended", help="Unique ID for each inventory item"))
+        #     label = st.selectbox(label="Label", options=[key for key in inventory_dict], help="Type of inventory item")
+        #     date = st.date_input("Date: ", help="Date when the inventory item was added")
+        #     quantity = st.number_input(label="Quantity", value=1, min_value=1, help="Quantity of the inventory item")
+        #     submit = st.form_submit_button("Submit", type="primary", width='stretch')           
+        #     if submit:  # Check if ID is taken or not
+        #         if all([id, label, date, quantity, submit]) == False:  # check if every parameter is filled
+        #             st.warning("Please Fill every box")
+        #         else:
+        #             with shelve.open(database) as db:
+        #                 if id not in db:
+        #                     inventory = class_inventory(
+        #                         id=id,
+        #                         label=label,
+        #                         date=date,
+        #                         quantity=quantity
+        #                         )
+        #                     db[id] = inventory
+        #                     st.success(f"Data Saved Successfully !", width="stretch")
+        #                     time.sleep(0.5)
+        #                     st.rerun()
+        #                 else:
+        #                     st.error("Inventory ID is Taken")
+        #                     st.warning("Try Using Another ID")
+     
 # ---------------------------------------------------------------------------------------------------
 # ==================================================================================================
 # ---------------------------------------------------------------------------------------------------
+def save(database, prod_year, type, data):
+    if database == crop_db:
+        class_data = class_crop(**data)
+    elif database == livestock_db:
+        class_data = class_livestock(**data)
+    with shelve.open(database) as db:
+        prod_year_data = db.get(prod_year, {})
+        if type in prod_year_data:
+            st.error(f"Warning: Type Already Exists.")
+            st.warning(f"Please Check your Production Year or try editing")
+        else:
+            prod_year_data[type] =  class_data
+            db[prod_year] = prod_year_data
+            st.success(f"Data Saved Successfully! ", width="stretch")
+            time.sleep(0.5)
+            st.rerun()
+
+     
+        
+
+        
+        
+
+
+
 def verify_production_year(yr):
     if ("/" not in  yr and len(yr) == 4) or ("/" in yr and len(yr) == 9):
         return True
@@ -430,7 +510,7 @@ def edit(database=None, edit_id=None, edit_year=None, edit_type=None):
                         if not (new_type in db[edit_year] and new_type != edit_type):
                             if new_type != edit_type :
                                 del db[edit_year][edit_type]
-                            new_crop = class_crop(production_year=new_production_year,type=new_type, date=new_date, yield_amount=new_yield_price, estimated=new_estimated, export_cost=new_exported_price, production_cost=new_production_cost)
+                            new_crop = class_crop(prod_year=new_production_year,type=new_type, date=new_date, yield_amount=new_yield_price, estimated=new_estimated, export_cost=new_exported_price, prod_cost=new_production_cost)
                             db[edit_year][new_type] = new_crop
                             st.success(f"Changes Saved Successfully!", width="stretch")
                             time.sleep(0.5)
@@ -460,12 +540,12 @@ def edit(database=None, edit_id=None, edit_year=None, edit_type=None):
                             new_livestock = class_livestock(
                             type=new_type,
                             date=new_date,
-                            production_year=new_production_year,
+                            prod_year=new_production_year,
                             amount=new_amount,
                             import_cost=new_import_price,
                             export_date=new_export_date,
                             export_cost=new_exported_price,
-                            production_cost=new_production_cost)
+                            prod_cost=new_production_cost)
                             db[edit_year][new_type] = new_livestock
                             st.success(f"Changes Saved Successfully", width="stretch")
                             time.sleep(0.5)
@@ -686,5 +766,53 @@ def check_sn():
     except: return True
 # ---------------------------------------------------------------------------------------------------
 # ==================================================================================================
-# ---------------------------------------------------------------------------------------------------
 
+def display_graph(database, filter_on=False):
+    with shelve.open(database) as db:
+        filtered_prod_year_list = filter_by_prod_year(database) if filter_on == True else [prod_years for prod_years in db]
+    i = 0
+    heights = [220,260, 220, 260]
+    col1, col2, col3, col4 = st.columns(4)
+    cols = [col1, col2, col3, col4]
+    
+    
+    with shelve.open(database) as db:
+        # filtered_prod_year_list = filter_by_prod_year(database) if filter_on== True else [prod_years for prod_years in db]
+        for prod_year in filtered_prod_year_list:
+            prod_year_data = db[prod_year]
+            for data_type in prod_year_data:
+                data = prod_year_data[data_type]
+                height = heights[i]
+                
+                amount = data.yield_amount if database == crop_db else data.amount
+                yield_value =  None if amount == None else millify(amount,precision=1)
+                with cols[i]:
+                    with st.container(border=True):
+                        left, right = st.columns(2)
+                        with left:
+                            st.metric(label=f"{prod_year}", value = f"{data_type}",width="stretch")
+                        with right:
+                            right_label = "Crop Yiled[KG]" if database == crop_db else "Livestock Amount"
+                            st.metric(label=right_label, value = yield_value, width="stretch")
+                        st.altair_chart(alter_graph(data_year = prod_year,data_type=data_type, database=database, height=height), use_container_width=True)
+                        first_date = data.date
+                        last_date = data.estimated if database == crop_db else data.export_date
+                        st.button(f"**{data.date} -- {data.estimated if database == crop_db else data.export_date}**", 
+                                width="stretch", type="tertiary", 
+                                key = f"{prod_year}{data_type}")
+                if i >= 3:
+                    i = 0
+                    heights = heights[::-1]
+                else: i += 1
+
+
+
+def filter_by_prod_year(database):
+    with shelve.open(database) as db:
+        years = [key for key in db] # extract all the production years from db
+        year_list = sort_years(years) # sort years in decending order
+        # collect user selected years into a list, remove dublicates and sort in decending order
+        # Only allow user to select existing years
+        selected_year_list = st.multiselect("Filter By Year", options=year_list, default=year_list, key=f"{database} filter")
+        selected_year_list = sort_years(selected_year_list)
+    return selected_year_list
