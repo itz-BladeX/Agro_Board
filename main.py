@@ -45,7 +45,7 @@ with st.container():  # Weather Section
 
     st.divider()
     matric_col1, matric_col2, matric_col3, matric_col4 = st.columns(4)
-    st.set_page_config(page_title="AGRO-BOARD", layout="wide")
+    st.set_page_config(page_title="AGRO-BOARD", layout="wide", initial_sidebar_state="collapsed")
     with st.spinner("Fetching Weather Data..."):
         with matric_col1:
             st.metric(label="Temperature", value=sup.get_weather('temp'), border=True)
