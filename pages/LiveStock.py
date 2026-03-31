@@ -73,7 +73,13 @@ if st.session_state.big:
                         with col5: st.info(sup.format_number(livestock.import_cost))
                         with col6: st.info(sup.format_number(livestock.production_cost))
                         with col7: st.info(sup.format_number(livestock.export_cost))
-                        with col8: st.info(sup.format_number(livestock.profit))
+                        if livestock.profit > 0:
+                            with col8: st.info(sup.format_number(livestock.profit))
+                        elif livestock.profit < 0:
+                            with col8: st.error(sup.format_number(livestock.profit))
+                        else:
+                            with col8: st.warning(sup.format_number(livestock.profit))
+                        # with col8: st.info(sup.format_number(livestock.profit))
                         with col9: st.button(icon=":material/edit:", label="", key=f"edit{yr}{livestock_type}", on_click=sup.edit, args=(database,None, yr,livestock_type ), type="secondary", help="Edit Data", width="stretch")
                         with col10: st.button(icon=":material/delete:",label="", key=f"del{yr}{livestock_type}", on_click=sup.delete, args=(database,yr, livestock_type), type="primary", help="Delete Data Permanently", width="stretch")
 

@@ -79,7 +79,15 @@ if st.session_state.big:
                         with col4: st.success(sup.format_number(crop.yield_amount))
                         with col5: st.success(sup.format_number(crop.production_cost))
                         with col6: st.success(sup.format_number(crop.export_cost))
-                        with col7: st.success(sup.format_number(crop.profit))
+                        if crop.profit > 0:
+                            with col7: st.success(sup.format_number(crop.profit))
+                        elif crop.profit < 0:
+                            with col7: st.error(sup.format_number(crop.profit))
+                        else:
+                            with col7: st.warning(sup.format_number(crop.profit))
+
+
+
                         with col8: st.button(icon=":material/edit:", label="", key=f"edit{yr}{crop_type}", on_click=sup.edit, args=(database, None, yr, crop_type), type="secondary", width='stretch')
                         with col9: st.button(icon=":material/delete:",label="", key=f"del{yr}{crop_type}", on_click=sup.delete, args=(database, yr, crop_type), type="primary", width="stretch")
                 
