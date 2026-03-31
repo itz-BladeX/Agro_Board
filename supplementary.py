@@ -408,48 +408,56 @@ def verify_production_year(yr):
 # ---------------------------------------------------------------------------------------------------
 # ==================================================================================================
 # ---------------------------------------------------------------------------------------------------
-@st.dialog("Update / Edit Data")
+@st.dialog("Edit",width="medium")
 def edit(database=None, edit_id=None, edit_year=None, edit_type=None):
     if database == "crop_database":
         with st.form(key="crop edit"):
-                with shelve.open(database, writeback=True) as db:
-                # Collect Crop Informatioln
-                    # new_id = str(st.text_input("ID", placeholder="3 digit ID recommended", value=db[edit_id].id))
-                    new_type = st.selectbox(label="Type", options=[key for key in crop_dict], index=[key for key in crop_dict].index(db[edit_year][edit_type].type))
+            st.success("Modify Crop Data") 
+            with shelve.open(database, writeback=True) as db:
+                col1, col2 = st.columns(2)
+            # Collect Crop Informatioln
+                # new_id = str(st.text_input("ID", placeholder="3 digit ID recommended", value=db[edit_id].id))
+                with col1:
+                    new_type = st.selectbox(label="Crop Type", options=[key for key in crop_dict], index=[key for key in crop_dict].index(db[edit_year][edit_type].type))
                     new_date = st.date_input("Planted Date", value=db[edit_year][edit_type].date)
                     new_production_year = st.text_input("Production year", value=db[edit_year][edit_type].production_year, disabled=True)
-                    new_estimated = st.date_input(label="Expected Harvest", value=db[edit_year][edit_type].estimated)
+                    new_estimated = st.date_input(label="Expected Harvest Date", value=db[edit_year][edit_type].estimated)
+                with col2:
                     new_yield_price = st.number_input(label="Yield[kg]", value=db[edit_year][edit_type].yield_amount)
                     new_production_cost = st.number_input(label = "Production Cost [Birr]", value=db[edit_year][edit_type].production_cost)
                     new_exported_price = st.number_input(label="Sold Price [Birr]", value=db[edit_year][edit_type].export_cost)
-                    
-                    submit_edit = st.form_submit_button(width="stretch")
-                    if submit_edit:
-                        if not all([new_production_year, new_type, new_date, submit_edit]):  # check if every parameter is filled
-                            st.warning("Please Fill every box")
-                        if not (new_type in db[edit_year] and new_type != edit_type):
-                            if new_type != edit_type :
-                                del db[edit_year][edit_type]
-                            new_crop = class_crop(production_year=new_production_year,type=new_type, date=new_date, yield_amount=new_yield_price, estimated=new_estimated, export_cost=new_exported_price, production_cost=new_production_cost)
-                            db[edit_year][new_type] = new_crop
-                            st.success(f"Changes Saved Successfully!", width="stretch")
-                            time.sleep(0.5)
-                            st.rerun()
-                        else:
-                            st.warning("Crop Type Already Taken")
+                
+                submit_edit = st.form_submit_button(width="stretch")
+                if submit_edit:
+                    if not all([new_production_year, new_type, new_date, submit_edit]):  # check if every parameter is filled
+                        st.warning("Please Fill every box")
+                    if not (new_type in db[edit_year] and new_type != edit_type):
+                        if new_type != edit_type :
+                            del db[edit_year][edit_type]
+                        new_crop = class_crop(production_year=new_production_year,type=new_type, date=new_date, yield_amount=new_yield_price, estimated=new_estimated, export_cost=new_exported_price, production_cost=new_production_cost)
+                        db[edit_year][new_type] = new_crop
+                        st.success(f"Changes Saved Successfully!", width="stretch")
+                        time.sleep(0.5)
+                        st.rerun()
+                    else:
+                        st.warning("Crop Type Already Taken")
     
     elif database == "livestock_database":
         with st.form(key="Livestock edit"):
+                st.info ("Modify Livestock Data")
                 with shelve.open(database, writeback=True) as db:
                 # Collect Crop Informatioln
-                    new_type = st.selectbox(label="Type", options=[key for key in livestock_dict], index=[key for key in livestock_dict].index(db[edit_year][edit_type].type))
-                    new_date = st.date_input("Bought  Date", value=db[edit_year][edit_type].date)
-                    new_production_year = st.text_input("Production year", value=db[edit_year][edit_type].production_year, disabled=True)
-                    new_amount = st.number_input("Amount Bought", min_value=1, value=db[edit_year][edit_type].amount)
-                    new_export_date = st.date_input(label="Estimated", value=db[edit_year][edit_type].export_date)
-                    new_import_price = st.number_input(label="Bought Price [Birr]", value=db[edit_year][edit_type].import_cost)
-                    new_exported_price = st.number_input(label="Sold Price [Birr]", value=db[edit_year][edit_type].export_cost)
-                    new_production_cost = st.number_input(label = "Production Cost [Birr]", value=db[edit_year][edit_type].production_cost)
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        new_type = st.selectbox(label="Livestock Type", options=[key for key in livestock_dict], index=[key for key in livestock_dict].index(db[edit_year][edit_type].type))
+                        new_date = st.date_input("Bought Date", value=db[edit_year][edit_type].date)
+                        new_production_year = st.text_input("Production year", value=db[edit_year][edit_type].production_year, disabled=True)
+                        new_export_date = st.date_input(label="Sold Date", value=db[edit_year][edit_type].export_date)
+                    with col2:
+                        new_amount = st.number_input("Amount Bought", min_value=1, value=db[edit_year][edit_type].amount) 
+                        new_import_price = st.number_input(label="Bought Price [Birr]", value=db[edit_year][edit_type].import_cost)
+                        new_exported_price = st.number_input(label="Sold Price [Birr]", value=db[edit_year][edit_type].export_cost)
+                        new_production_cost = st.number_input(label = "Production Cost [Birr]", value=db[edit_year][edit_type].production_cost)
                     submit_edit = st.form_submit_button(width="stretch")
                     if submit_edit:
                         if not all([new_production_year, new_type, new_date, submit_edit]):  # check if every parameter is filled
