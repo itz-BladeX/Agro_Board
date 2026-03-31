@@ -1,7 +1,7 @@
 import streamlit as st
 import shelve
 import pandas as pd
-import functions as func
+import client_app.app.functions as func
 import time
 from streamlit_javascript import st_javascript
 

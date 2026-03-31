@@ -1,6 +1,6 @@
 import streamlit as st
 # import weather
-import functions as func
+import client_app.app.functions as func
 import shelve
 import streamlit_option_menu as om
 import time

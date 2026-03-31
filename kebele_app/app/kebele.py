@@ -1,14 +1,27 @@
 
 import streamlit as st
-import add_on as sp
+import kebele_app.app.add_on as sp
 
 st.logo("logo.png", size='large')
 
 
+if "select_kebele" not in st.session_state:
+    st.session_state.select_kebele = False
+if "select" not in st.session_state:
+    st.session_state.select = False
 
-kebele = "02"
+if st.session_state.select_kebele: 
+    kebele = "01"
+else:
+    kebele = "02"
 
-st.set_page_config(layout="wide", page_title="Kebele 2")
+if st.button(f"Current Kebele [{kebele}]", width="stretch"):
+    st.session_state.select_kebele = not st.session_state.select_kebele
+    st.session_state.select = not st.session_state.select
+    st.rerun()
+
+
+st.set_page_config(page_title=f"Kebele {kebele}",layout="wide")
 st.markdown("""<style> button { height: 56px !important; padding-bottom:5px !important; } </style>""", unsafe_allow_html=True)
 st.markdown("""   
     <style text-align: center>
@@ -18,7 +31,7 @@ st.markdown("""
         text-align: center !important;
         display: block !important;
     }
-    </style> <h2 style="color: white; text-align: center; font-family: Arial, sans-serif;"> Kebele DashBoard </h2>""", unsafe_allow_html=True)
+    </style> <h2 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> Kebele DashBoard </h2>""", unsafe_allow_html=True)
 col1, col2, col3, col4 = st.columns(4)
 
 
@@ -32,7 +45,7 @@ st.divider()
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown("""</style> <h3 style="color: white; text-align: center; font-family: Arial, sans-serif;"> Crop Ranking By Yield </h3>""", unsafe_allow_html=True)
+    st.markdown("""</style> <h3 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> Crop Ranking By Yield </h3>""", unsafe_allow_html=True)
     crop_ranking_data = sp.get_crop_ranking(kebele)
     years = [year for year in crop_ranking_data]
     sorted_years = sp.sort_years(list(set(years)))
@@ -68,11 +81,12 @@ with col1:
             st.success("None")
         with c3: 
             st.success("None")
+        rank += 1
             
     st.button("See More",key=f"See more Crop ranking", on_click=sp.crop_ranking, args=(sorted_years,crop_ranking_data),width="stretch")
   
 with col2:
-    st.markdown("""</style> <h3 style="color: white; text-align: center; font-family: Arial, sans-serif;"> LiveStock Ranking By Amount </h3>""", unsafe_allow_html=True)
+    st.markdown("""</style> <h3 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> LiveStock Ranking By Amount </h3>""", unsafe_allow_html=True)
     livestock_ranking_data = sp.get_livestock_ranking(kebele)
     years = [year for year in livestock_ranking_data]
     sorted_years = sp.sort_years(list(set(years)))
@@ -107,11 +121,12 @@ with col2:
             st.info("None")
         with col3: 
             st.info("None")
+        rank += 1
     st.button("See More",key=f"See more livestock ranking",on_click=sp.livestock_ranking, args=(sorted_years,livestock_ranking_data), width="stretch")
         
 st.divider()
 
-st.markdown("""</style> <h3 style="color: white; text-align: center; font-family: Arial, sans-serif;"> User Data </h3>""", unsafe_allow_html=True)
+st.markdown("""</style> <h3 style="color: #013014ff; text-align: center; font-family: Arial, sans-serif;"> User Data </h3>""", unsafe_allow_html=True)
 
 col1, col2, col3, col4,  col6, col7 = st.columns([0.7,2,2,2,2,0.5])
 number = 1

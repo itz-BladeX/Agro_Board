@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_javascript import st_javascript
-import functions as func
+import client_app.app.functions as func
 import time
 st.set_page_config(page_title="AGRO-BOARD", layout="wide", )
 st.logo("logo.png")
@@ -58,4 +58,4 @@ st.header("""
          
 💬 Inspirational / Call to Action
 
-Empower your farm with smarter insights — get ready with Agro-Board today on GitHub: https://github.com/itz-BladeX/AgroBoard""")
+Empower your farm with smarter insights — get ready with Agro-Board today on GitHub: https://github.com/itz-BladeX/Agro_Board""")
